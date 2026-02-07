@@ -1,0 +1,14 @@
+name = "fortune-teller-worker"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+# Add your OpenRouter API key as a secret:
+# wrangler secret put OPENROUTER_API_KEY
+
+# Create KV namespace for rate limiting:
+# wrangler kv:namespace create "RATE_LIMIT_KV"
+# Then update the id below:
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "your_kv_namespace_id_here"

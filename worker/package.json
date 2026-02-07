@@ -1,0 +1,17 @@
+{
+  "name": "fortune-teller-worker",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker proxy for Fortune Teller app",
+  "main": "src/index.js",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "tail": "wrangler tail"
+  },
+  "keywords": ["cloudflare", "worker", "openrouter", "fortune-teller"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

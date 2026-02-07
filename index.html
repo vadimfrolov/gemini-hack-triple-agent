@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fortune Teller</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Fortune Teller</h1>
+      <p class="subtitle">Discover your destiny</p>
+    </header>
+
+    <main>
+      <!-- Input Mode Toggle -->
+      <div class="mode-toggle">
+        <button id="textModeBtn" class="mode-btn active">Text</button>
+        <button id="voiceModeBtn" class="mode-btn">Voice</button>
+      </div>
+
+      <!-- Text Input Section -->
+      <div id="textSection" class="input-section active">
+        <textarea 
+          id="textInput" 
+          placeholder="Ask the fortune teller anything... What would you like to know about your future?"
+          rows="4"
+        ></textarea>
+        <button id="textSubmitBtn" class="submit-btn">Get Fortune</button>
+      </div>
+
+      <!-- Voice Input Section -->
+      <div id="voiceSection" class="input-section">
+        <p style="text-align: center; opacity: 0.7; margin-bottom: 1rem; font-size: 0.9rem;">
+          Click "Record" and allow microphone access. Speak clearly to see the volume visualizer.
+        </p>
+        <div id="voiceControls" class="voice-controls">
+          <button id="recordBtn" class="record-btn">
+            <span class="record-icon"></span>
+            <span class="btn-text">Record</span>
+          </button>
+          
+          <button id="stopBtn" class="stop-btn hidden">
+            <span class="stop-icon"></span>
+            <span class="btn-text">Stop</span>
+          </button>
+        </div>
+
+        <div id="recordingStatus" class="recording-status hidden">
+          <span class="recording-dot"></span>
+          <span class="recording-text">Recording...</span>
+          <span class="recording-timer">00:00</span>
+        </div>
+
+        <div id="playbackSection" class="playback-section hidden">
+          <p class="transcription-label">Your message:</p>
+          <p id="transcriptionText" class="transcription-text"></p>
+          
+          <div class="playback-controls">
+            <button id="playBtn" class="control-btn">
+              <span class="play-icon"></span>
+              Listen
+            </button>
+            <button id="retakeBtn" class="control-btn secondary">
+              <span class="retake-icon"></span>
+              Retake
+            </button>
+          </div>
+          
+          <button id="voiceSubmitBtn" class="submit-btn">Get Fortune</button>
+        </div>
+
+        <div id="voiceError" class="error-message hidden"></div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loadingSection" class="loading-section hidden">
+        <div class="crystal-ball">
+          <div class="ball"></div>
+          <div class="glow"></div>
+        </div>
+        <p class="loading-text">The spirits are consulting...</p>
+      </div>
+
+      <!-- Result Section -->
+      <div id="resultSection" class="result-section hidden">
+        <div class="result-card">
+          <h2>Your Fortune</h2>
+          <p id="fortuneText" class="fortune-text"></p>
+        </div>
+        <button id="newFortuneBtn" class="submit-btn secondary">Ask Again</button>
+      </div>
+
+      <!-- Error Section -->
+      <div id="errorSection" class="error-section hidden">
+        <p id="errorText" class="error-message"></p>
+        <button id="retryBtn" class="submit-btn">Try Again</button>
+      </div>
+    </main>
+
+    <footer>
+      <p>Powered by OpenRouter AI</p>
+    </footer>
+  </div>
+
+  <!-- Configuration - Update this with your Worker URL -->
+  <script>
+    window.CONFIG = {
+      WORKER_URL: 'https://fortune-teller-worker.your-subdomain.workers.dev'
+    };
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
