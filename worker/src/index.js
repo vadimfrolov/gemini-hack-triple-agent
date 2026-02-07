@@ -21,7 +21,7 @@ const RATE_LIMIT_WINDOW = 60; // seconds
 const MODEL_FORTUNE = 'google/gemma-2-27b-it';
 
 // Fortune teller prompt
-const FORTUNE_PROMPT = `Imagine you are a mystical fortune teller. Create a short, engaging prediction of 3-7 sentences based on the following input. The tone should be mysterious yet positive, incorporating elements of the input naturally. Make it feel personal and magical:`;
+const FORTUNE_PROMPT = `You are a straightforward fortune teller. Create a realistic prediction of 3-7 sentences based on the following input. The tone should be honest and balanced - sometimes positive, sometimes cautionary, sometimes neutral. Make it feel personal and thoughtful, but grounded in reality:`;
 
 // Helper function to generate fortune
 async function generateFortune(text, apiKey) {

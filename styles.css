@@ -51,6 +51,239 @@ h1 {
   font-weight: 400;
 }
 
+/* Animated ASCII Cat */
+.cat-container {
+  position: relative;
+  display: inline-block;
+}
+
+.speech-bubble {
+  position: absolute;
+  top: 20px;
+  background: white;
+  border: 2px solid black;
+  border-radius: 15px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  width: 160px;
+  text-align: center;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+  animation: bobble 2s ease-in-out infinite;
+  transition: all 0.3s ease;
+}
+
+/* Text mode - bubble on left */
+.speech-bubble.position-left {
+  left: -180px;
+  right: auto;
+}
+
+.speech-bubble.position-left::before {
+  content: '';
+  position: absolute;
+  right: -15px;
+  left: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-left: 15px solid black;
+  border-right: none;
+}
+
+.speech-bubble.position-left::after {
+  content: '';
+  position: absolute;
+  right: -11px;
+  left: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 12px solid white;
+  border-right: none;
+}
+
+/* Voice mode - bubble on right */
+.speech-bubble.position-right {
+  right: -180px;
+  left: auto;
+}
+
+.speech-bubble.position-right::before {
+  content: '';
+  position: absolute;
+  left: -15px;
+  right: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 15px solid black;
+  border-left: none;
+}
+
+.speech-bubble.position-right::after {
+  content: '';
+  position: absolute;
+  left: -11px;
+  right: auto;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 12px solid white;
+  border-left: none;
+}
+
+@keyframes bobble {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Loading dots animation */
+.loading-dots {
+  display: inline-block;
+  animation: dots 1.5s steps(4, end) infinite;
+  overflow: hidden;
+  vertical-align: bottom;
+  width: 0;
+}
+
+@keyframes dots {
+  0% {
+    width: 0;
+  }
+  25% {
+    width: 0.3em;
+  }
+  50% {
+    width: 0.6em;
+  }
+  75% {
+    width: 0.9em;
+  }
+  100% {
+    width: 1.2em;
+  }
+}
+
+/* Loading state bubble */
+.speech-bubble[data-loading="true"] {
+  background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+  border-color: #666;
+  font-style: italic;
+}
+
+/* Speech bubble always visible */
+.speech-bubble {
+  transition: opacity 0.3s ease;
+}
+
+.ascii-cat {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  line-height: 1.3;
+  text-align: center;
+  margin: 1.5rem auto;
+  opacity: 0.8;
+  animation: catFloat 3s ease-in-out infinite;
+  white-space: pre;
+  color: var(--text-color);
+}
+
+@keyframes catFloat {
+  0%, 100% {
+    opacity: 0.7;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+.cat-face {
+  display: inline-block;
+  position: relative;
+  width: 3ch;
+  height: 1em;
+  vertical-align: baseline;
+}
+
+.eyes-open,
+.eyes-closed {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  text-align: center;
+}
+
+.eyes-open {
+  animation: showOpen 4s infinite;
+}
+
+.eyes-closed {
+  animation: showClosed 4s infinite;
+}
+
+@keyframes showOpen {
+  0%, 48%, 52%, 100% {
+    opacity: 1;
+  }
+  49%, 51% {
+    opacity: 0;
+  }
+}
+
+@keyframes showClosed {
+  0%, 48%, 52%, 100% {
+    opacity: 0;
+  }
+  49%, 51% {
+    opacity: 1;
+  }
+}
+
+.ascii-cat::after {
+  /* content: '🐾'; */
+  display: inline-block;
+  animation: pawPrint 2s ease-in-out infinite;
+  margin-left: 5px;
+}
+
+.ascii-cat::before {
+  /* content: '🐾'; */
+  display: inline-block;
+  animation: pawPrint 2s ease-in-out infinite reverse;
+  margin-right: 5px;
+}
+
+@keyframes pawPrint {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
 /* Mode Toggle */
 .mode-toggle {
   display: flex;
@@ -169,6 +402,9 @@ textarea::placeholder {
   justify-content: center;
   gap: 0.5rem;
   transition: all 0.3s ease;
+  position: relative;
+  --mouse-x: 0.5;
+  --mouse-y: 0.5;
 }
 
 .record-btn:hover {
@@ -181,6 +417,15 @@ textarea::placeholder {
   height: 40px;
   background-color: var(--accent-color);
   border-radius: 50%;
+  transition: transform 0.1s ease;
+  will-change: transform;
+}
+
+.record-btn:hover .record-icon {
+  transform: translate(
+    calc((var(--mouse-x) - 0.5) * 30px),
+    calc((var(--mouse-y) - 0.5) * 30px)
+  );
 }
 
 .stop-icon {
@@ -272,18 +517,84 @@ textarea::placeholder {
 
 .crystal-ball {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 150px;
+  height: 150px;
   margin: 0 auto 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.ball {
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(0,0,0,0.9));
-  border-radius: 50%;
-  border: 3px solid var(--border-color);
+.emoji-ball {
+  font-size: 6rem;
   animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(138, 43, 226, 0.3));
+}
+
+.sparkle {
+  position: absolute;
+  font-size: 1.2rem;
+  animation: sparkleFloat 3s ease-in-out infinite;
+  opacity: 0;
+}
+
+.sparkle-1 {
+  top: 0;
+  left: 50%;
+  animation-delay: 0s;
+}
+
+.sparkle-2 {
+  top: 20%;
+  right: 5px;
+  animation-delay: 0.5s;
+}
+
+.sparkle-3 {
+  bottom: 30%;
+  right: 0;
+  animation-delay: 1s;
+}
+
+.sparkle-4 {
+  bottom: 10px;
+  left: 50%;
+  animation-delay: 1.5s;
+}
+
+.sparkle-5 {
+  bottom: 30%;
+  left: 0;
+  animation-delay: 2s;
+}
+
+.sparkle-6 {
+  top: 20%;
+  left: 5px;
+  animation-delay: 2.5s;
+}
+
+@keyframes sparkleFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.5);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-10px) scale(1);
+  }
+  40% {
+    opacity: 0.8;
+    transform: translateY(-20px) scale(0.8);
+  }
+  60% {
+    opacity: 0.5;
+    transform: translateY(-25px) scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.3);
+  }
 }
 
 @keyframes float {

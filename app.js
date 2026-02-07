@@ -1,4 +1,4 @@
-// Fortune Teller App - Frontend Logic with Volume Visualizer
+// Fortune Teller App - Frontend Logic
 class FortuneTellerApp {
   constructor() {
     this.workerUrl = window.CONFIG.WORKER_URL;
@@ -6,15 +6,9 @@ class FortuneTellerApp {
     this.transcription = '';
     this.interimTranscript = '';
     this.isRecording = false;
+    this.hasRecordingStarted = false;
     this.recordingStartTime = null;
     this.recordingTimer = null;
-    
-    // Audio context for visualizer
-    this.audioContext = null;
-    this.analyser = null;
-    this.microphone = null;
-    this.dataArray = null;
-    this.animationId = null;
     
     this.init();
   }
@@ -51,21 +45,10 @@ class FortuneTellerApp {
     this.errorText = document.getElementById('errorText');
     this.retryBtn = document.getElementById('retryBtn');
     this.voiceControls = document.getElementById('voiceControls');
+    this.catSpeechBubble = document.getElementById('catSpeechBubble');
   }
 
   createVisualizer() {
-    // Create canvas for volume visualization
-    this.canvas = document.createElement('canvas');
-    this.canvas.width = 200;
-    this.canvas.height = 60;
-    this.canvas.style.cssText = 'width: 100%; height: 60px; margin-top: 1rem; border-radius: 8px; background: #f5f5f5;';
-    this.canvas.className = 'volume-visualizer';
-    this.ctx = this.canvas.getContext('2d');
-    
-    // Insert after voiceControls
-    this.voiceControls.parentNode.insertBefore(this.canvas, this.recordingStatus);
-    this.canvas.style.display = 'none';
-    
     // Create status text for transcription
     this.liveTranscriptionEl = document.createElement('p');
     this.liveTranscriptionEl.className = 'live-transcription';
@@ -179,11 +162,8 @@ class FortuneTellerApp {
 
   async initAudioContext() {
     try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      this.audioContext = new AudioContext();
-      
       // Request microphone access
-      const stream = await navigator.mediaDevices.getUserMedia({ 
+      await navigator.mediaDevices.getUserMedia({ 
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
@@ -191,23 +171,10 @@ class FortuneTellerApp {
         }
       });
       
-      // Create analyzer
-      this.analyser = this.audioContext.createAnalyser();
-      this.analyser.fftSize = 256;
-      this.analyser.smoothingTimeConstant = 0.8;
-      
-      // Connect microphone to analyzer
-      this.microphone = this.audioContext.createMediaStreamSource(stream);
-      this.microphone.connect(this.analyser);
-      
-      // Prepare data array
-      const bufferLength = this.analyser.frequencyBinCount;
-      this.dataArray = new Uint8Array(bufferLength);
-      
-      console.log('✅ Audio context initialized');
+      console.log('✅ Microphone access granted');
       return true;
     } catch (error) {
-      console.error('❌ Audio context error:', error);
+      console.error('❌ Microphone error:', error);
       
       if (error.name === 'NotAllowedError') {
         this.showVoiceError('❌ Microphone access denied. Please allow microphone permissions in your browser.');
@@ -221,62 +188,11 @@ class FortuneTellerApp {
   }
 
   startVisualizer() {
-    this.canvas.style.display = 'block';
-    
-    const draw = () => {
-      if (!this.isRecording) return;
-      
-      this.animationId = requestAnimationFrame(draw);
-      
-      this.analyser.getByteFrequencyData(this.dataArray);
-      
-      // Clear canvas
-      this.ctx.fillStyle = '#f5f5f5';
-      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-      
-      // Draw volume bars
-      const barWidth = (this.canvas.width / this.dataArray.length) * 2.5;
-      let barHeight;
-      let x = 0;
-      
-      // Calculate average volume
-      let sum = 0;
-      for (let i = 0; i < this.dataArray.length; i++) {
-        sum += this.dataArray[i];
-      }
-      const average = sum / this.dataArray.length;
-      
-      // Color based on volume level
-      const hue = 120 + (average / 255) * 60; // Green to yellow
-      
-      for (let i = 0; i < this.dataArray.length; i++) {
-        barHeight = (this.dataArray[i] / 255) * this.canvas.height * 0.8;
-        
-        // Dynamic color based on frequency
-        const barHue = (i / this.dataArray.length) * 60 + 120;
-        this.ctx.fillStyle = `hsl(${barHue}, 70%, 50%)`;
-        
-        // Draw mirrored bars for visual effect
-        this.ctx.fillRect(x, this.canvas.height / 2 - barHeight / 2, barWidth, barHeight);
-        
-        x += barWidth + 1;
-      }
-    };
-    
-    draw();
+    // Visualizer removed - no canvas needed
   }
 
   stopVisualizer() {
-    if (this.animationId) {
-      cancelAnimationFrame(this.animationId);
-      this.animationId = null;
-    }
-    if (this.canvas) {
-      this.canvas.style.display = 'none';
-      // Clear canvas
-      this.ctx.fillStyle = '#f5f5f5';
-      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-    }
+    // Visualizer removed - no canvas to clean up
   }
 
   bindEvents() {
@@ -291,6 +207,20 @@ class FortuneTellerApp {
     this.newFortuneBtn.addEventListener('click', () => this.reset());
     this.retryBtn.addEventListener('click', () => this.reset());
     
+    // Record button hover effect - stretch icon toward cursor
+    this.recordBtn.addEventListener('mousemove', (e) => {
+      const rect = this.recordBtn.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      this.recordBtn.style.setProperty('--mouse-x', x);
+      this.recordBtn.style.setProperty('--mouse-y', y);
+    });
+    
+    this.recordBtn.addEventListener('mouseleave', () => {
+      this.recordBtn.style.setProperty('--mouse-x', 0.5);
+      this.recordBtn.style.setProperty('--mouse-y', 0.5);
+    });
+    
     this.textInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -304,6 +234,20 @@ class FortuneTellerApp {
     this.voiceModeBtn.classList.toggle('active', mode === 'voice');
     this.textSection.classList.toggle('active', mode === 'text');
     this.voiceSection.classList.toggle('active', mode === 'voice');
+    
+    // Update cat speech bubble text and position based on mode
+    if (this.catSpeechBubble) {
+      if (mode === 'text') {
+        this.catSpeechBubble.innerHTML = 'For text any <strong>language</strong> is welcome';
+        this.catSpeechBubble.classList.remove('position-right');
+        this.catSpeechBubble.classList.add('position-left');
+      } else {
+        this.catSpeechBubble.innerHTML = 'Use Only <strong>English</strong> 🇬🇧 for voice please';
+        this.catSpeechBubble.classList.remove('position-left');
+        this.catSpeechBubble.classList.add('position-right');
+      }
+    }
+    
     if (mode === 'text') this.resetVoiceSection();
   }
 
@@ -311,6 +255,7 @@ class FortuneTellerApp {
     this.stopRecording();
     this.transcription = '';
     this.interimTranscript = '';
+    this.hasRecordingStarted = false;
     this.playbackSection.classList.add('hidden');
     this.voiceError.classList.add('hidden');
     this.recordBtn.classList.remove('hidden');
@@ -349,6 +294,7 @@ class FortuneTellerApp {
       this.transcription = '';
       this.interimTranscript = '';
       this.isRecording = true;
+      this.hasRecordingStarted = true;
       
       if (this.liveTranscriptionEl) {
         this.liveTranscriptionEl.textContent = 'Speak now...';
@@ -407,7 +353,8 @@ class FortuneTellerApp {
       this.transcriptionText.textContent = fullTranscript;
       this.playbackSection.classList.remove('hidden');
       console.log('✅ Playback shown with transcript:', fullTranscript);
-    } else {
+    } else if (this.hasRecordingStarted) {
+      // Only show error if user actually clicked Record
       this.showVoiceError('⚠️ No speech detected. Please speak louder or check your microphone.');
     }
   }
@@ -508,6 +455,23 @@ class FortuneTellerApp {
     this.resultSection.classList.add('hidden');
     this.errorSection.classList.add('hidden');
     this.loadingSection.classList.remove('hidden');
+    
+    // Change bubble text to random loading message
+    if (this.catSpeechBubble) {
+      this.catSpeechBubble.setAttribute('data-loading', 'true');
+      const loadingMessages = [
+        'Consulting the crystal ball<span class="loading-dots">...</span>',
+        'Shuffling the tarot cards<span class="loading-dots">...</span>',
+        'Reading the tea leaves<span class="loading-dots">...</span>',
+        'Gazing into the void<span class="loading-dots">...</span>',
+        'Waking up the spirits<span class="loading-dots">...</span>',
+        'Polishing the crystal ball<span class="loading-dots">...</span>',
+        'Channeling cosmic energy<span class="loading-dots">...</span>',
+        'Asking the universe nicely<span class="loading-dots">...</span>'
+      ];
+      const randomLoadingMessage = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+      this.catSpeechBubble.innerHTML = randomLoadingMessage;
+    }
   }
 
   showResult(fortune) {
@@ -515,6 +479,24 @@ class FortuneTellerApp {
     this.fortuneText.textContent = fortune;
     this.resultSection.classList.remove('hidden');
     this.animateFortuneText();
+    
+    // Show result message in bubble
+    this.showResultBubbleText();
+  }
+
+  showResultBubbleText() {
+    if (this.catSpeechBubble) {
+      this.catSpeechBubble.removeAttribute('data-loading');
+      const messages = [
+        'Your destiny is revealed! ✨',
+        'The future is clear! 🔮',
+        'Magic has spoken! ⭐',
+        'Your fortune awaits! 🌟'
+      ];
+      // Pick a random message
+      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+      this.catSpeechBubble.innerHTML = randomMessage;
+    }
   }
 
   animateFortuneText() {
@@ -535,6 +517,21 @@ class FortuneTellerApp {
     this.loadingSection.classList.add('hidden');
     this.errorText.textContent = message;
     this.errorSection.classList.remove('hidden');
+    
+    // Restore bubble text based on current mode
+    this.restoreBubbleText();
+  }
+
+  restoreBubbleText() {
+    if (this.catSpeechBubble) {
+      this.catSpeechBubble.removeAttribute('data-loading');
+      const isVoiceMode = this.voiceModeBtn.classList.contains('active');
+      if (isVoiceMode) {
+        this.catSpeechBubble.innerHTML = 'Use Only <strong>English</strong> 🇬🇧 for voice please';
+      } else {
+        this.catSpeechBubble.innerHTML = 'For text any <strong>language</strong> is welcome';
+      }
+    }
   }
 
   reset() {

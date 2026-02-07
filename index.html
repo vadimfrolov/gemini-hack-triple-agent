@@ -11,6 +11,20 @@
     <header>
       <h1>Fortune Teller</h1>
       <p class="subtitle">Discover your destiny</p>
+      <div class="cat-container">
+        <div id="catSpeechBubble" class="speech-bubble position-left">
+          For text any <strong>language</strong> is welcome
+        </div>
+        <pre class="ascii-cat">
+   /\_/\
+  ( <span class="cat-face"><span class="eyes-open">o.o</span><span class="eyes-closed">- -</span></span> )
+   > ^ <
+  /|   |\
+ (_|   |_)
+
+~ Fortune Cat ~
+        </pre>
+      </div>
     </header>
 
     <main>
@@ -22,8 +36,8 @@
 
       <!-- Text Input Section -->
       <div id="textSection" class="input-section active">
-        <textarea 
-          id="textInput" 
+        <textarea
+          id="textInput"
           placeholder="Ask the fortune teller anything... What would you like to know about your future?"
           rows="4"
         ></textarea>
@@ -40,7 +54,7 @@
             <span class="record-icon"></span>
             <span class="btn-text">Record</span>
           </button>
-          
+
           <button id="stopBtn" class="stop-btn hidden">
             <span class="stop-icon"></span>
             <span class="btn-text">Stop</span>
@@ -56,7 +70,7 @@
         <div id="playbackSection" class="playback-section hidden">
           <p class="transcription-label">Your message:</p>
           <p id="transcriptionText" class="transcription-text"></p>
-          
+
           <div class="playback-controls">
             <button id="playBtn" class="control-btn">
               <span class="play-icon"></span>
@@ -67,7 +81,7 @@
               Retake
             </button>
           </div>
-          
+
           <button id="voiceSubmitBtn" class="submit-btn">Get Fortune</button>
         </div>
 
@@ -77,8 +91,13 @@
       <!-- Loading State -->
       <div id="loadingSection" class="loading-section hidden">
         <div class="crystal-ball">
-          <div class="ball"></div>
-          <div class="glow"></div>
+          <div class="emoji-ball">🔮</div>
+          <div class="sparkle sparkle-1">✨</div>
+          <div class="sparkle sparkle-2">✨</div>
+          <div class="sparkle sparkle-3">✨</div>
+          <div class="sparkle sparkle-4">✨</div>
+          <div class="sparkle sparkle-5">✨</div>
+          <div class="sparkle sparkle-6">✨</div>
         </div>
         <p class="loading-text">The spirits are consulting...</p>
       </div>
