@@ -17,7 +17,8 @@ const RATE_LIMIT_WINDOW = 60; // seconds
 
 // Model configuration
 // Note: Transcription is handled by browser's Web Speech API, not an AI model
-const MODEL_FORTUNE = 'anthropic/claude-3.5-sonnet';
+// Using free model: Gemma 2 27B (Gemma 3 not yet available on OpenRouter)
+const MODEL_FORTUNE = 'google/gemma-2-27b-it';
 
 // Fortune teller prompt
 const FORTUNE_PROMPT = `Imagine you are a mystical fortune teller. Create a short, engaging prediction of 3-7 sentences based on the following input. The tone should be mysterious yet positive, incorporating elements of the input naturally. Make it feel personal and magical:`;
@@ -60,6 +61,12 @@ async function generateFortune(text, apiKey) {
 
 // Rate limiting check
 async function checkRateLimit(clientIP, env) {
+  // Skip rate limiting if KV namespace is not available (local dev)
+  if (!env.RATE_LIMIT_KV) {
+    console.log('KV namespace not available, skipping rate limit');
+    return { allowed: true, remaining: RATE_LIMIT };
+  }
+  
   const key = `rate_limit:${clientIP}`;
   
   // Get current count from KV
