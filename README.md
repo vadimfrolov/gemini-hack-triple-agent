@@ -1,19 +1,23 @@
 # Fortune Teller Web App
 
-A minimalist web application that uses OpenRouter AI to generate mystical fortune predictions. Built with HTML, CSS, JavaScript, and Cloudflare Workers.
+A minimalist web application that uses Google DeepMind's Gemini 3 API to generate mystical fortune predictions. Built with HTML, CSS, JavaScript, and Cloudflare Workers.
 
-## Architecture
+## Gemini 3 Integration
 
-```
-GitHub Pages (Frontend) → Cloudflare Worker (Proxy) → OpenRouter API
-```
+The Fortune Teller web application leverages Google DeepMind's Gemini 3 API to power its "Council of Fate" - an innovative multi-agent system that provides users with diverse perspectives on their questions. When a user submits a query via text or voice input, the application orchestrates sequential API calls to Gemini 3, with each request representing a distinct AI persona: the balanced Fortune Teller, the blunt Realist, and the mystical Wise Cat.
+
+Built on Cloudflare Workers, the backend proxy routes user queries directly to Gemini 3's generative API, utilizing the model's advanced reasoning capabilities and expansive 128,000 token context window. The implementation employs a chain-of-thought approach where each agent receives not only the original query but also the accumulated responses from previous council members, creating a coherent narrative progression.
+
+Gemini 3's sophisticated instruction-following enables precise persona adherence through carefully crafted system prompts, while its temperature and max_tokens parameters are tuned for creative yet concise fortune-telling responses. The application's multimodal foundation allows seamless integration of voice input via the Web Speech API, with Gemini 3 processing the transcribed text to generate mystical predictions. This architecture showcases Gemini 3's versatility in creative applications, delivering an engaging, personality-driven experience that goes beyond traditional single-response AI interactions.
+
+---
+
 
 ## Features
 
 - **The Council of Fate**: Chain of 4 AI agents providing different perspectives on your fortune
   - 🧙‍♀️ The Fortune Teller - Balanced, realistic predictions
-  - 🌙 The Mysterious Stranger - Cryptic insights and hidden meanings  
-  - ☀️ The Optimist - Positive opportunities and silver linings
+  - ☀️ The Realist - Realisitic view on life
   - 🐱 The Wise Cat - Playful wisdom with a feline twist
 - Text input for direct fortune generation
 - Voice input with recording, playback, and retake options
@@ -53,18 +57,6 @@ wrangler deploy
 1. Update `WORKER_URL` in `index.html` with your Cloudflare Worker URL
 2. Update `ALLOWED_ORIGIN` in `worker/src/index.js` with your GitHub Pages URL
 
-## File Structure
-
-```
-├── index.html              # Frontend HTML with council result section
-├── styles.css              # Black & white styles + council card themes
-├── app.js                  # Frontend JavaScript with council logic
-└── worker/
-    ├── src/
-    │   └── index.js        # Cloudflare Worker with 4-agent chain
-    ├── wrangler.toml       # Worker config
-    └── package.json        # Worker dependencies
-```
 
 ## API Endpoints
 
@@ -72,42 +64,6 @@ wrangler deploy
 - `POST /api/fortune/voice` - Voice transcription to fortune (legacy single response)
 - `POST /api/fortune/council` - **NEW**: Chain of 4 agents for multi-perspective fortune
 
-### Council Response Format
-
-```json
-{
-  "council": [
-    {
-      "id": "fortune_teller",
-      "name": "The Fortune Teller",
-      "emoji": "🧙‍♀️",
-      "color": "purple",
-      "response": "Your fortune text here..."
-    },
-    {
-      "id": "mysterious_stranger",
-      "name": "The Mysterious Stranger",
-      "emoji": "🌙",
-      "color": "midnight",
-      "response": "Hidden meanings revealed..."
-    },
-    {
-      "id": "optimist",
-      "name": "The Optimist",
-      "emoji": "☀️",
-      "color": "gold",
-      "response": "Silver linings found..."
-    },
-    {
-      "id": "wise_cat",
-      "name": "The Wise Cat",
-      "emoji": "🐱",
-      "color": "orange",
-      "response": "Meow! Here's my advice..."
-    }
-  ]
-}
-```
 
 ## Troubleshooting Voice Input
 
