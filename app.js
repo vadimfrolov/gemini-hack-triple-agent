@@ -59,10 +59,6 @@ class FortuneTellerApp {
     this.revealNextBtn = document.getElementById('revealNextBtn');
     this.showAllBtn = document.getElementById('showAllBtn');
     this.newCouncilFortuneBtn = document.getElementById('newCouncilFortuneBtn');
-    
-    // Deactivated card
-    this.deactivatedCard = document.getElementById('deactivatedCard');
-    this.tryAgainDeactivatedBtn = document.getElementById('tryAgainDeactivatedBtn');
   }
 
   createVisualizer() {
@@ -228,11 +224,6 @@ class FortuneTellerApp {
     this.revealNextBtn.addEventListener('click', () => this.revealNextAgent());
     this.showAllBtn.addEventListener('click', () => this.showAllAgents());
     this.newCouncilFortuneBtn.addEventListener('click', () => this.reset());
-    
-    // Deactivated card listener
-    if (this.tryAgainDeactivatedBtn) {
-      this.tryAgainDeactivatedBtn.addEventListener('click', () => this.reset());
-    }
     
     // Record button hover effect - stretch icon toward cursor
     this.recordBtn.addEventListener('mousemove', (e) => {
@@ -426,21 +417,6 @@ class FortuneTellerApp {
     this.voiceError.classList.remove('hidden');
   }
 
-  showDeactivatedCard() {
-    // Hide input sections and loading
-    this.textSection.classList.remove('active');
-    this.voiceSection.classList.remove('active');
-    this.loadingSection.classList.add('hidden');
-    
-    // Show the deactivated card
-    this.deactivatedCard.classList.remove('hidden');
-    
-    // Update cat speech bubble
-    if (this.catSpeechBubble) {
-      this.catSpeechBubble.innerHTML = 'The crystal ball refuses to answer 🙅‍♀️';
-    }
-  }
-
   async submitText() {
     const text = this.textInput.value.trim();
     if (!text) {
@@ -459,13 +435,6 @@ class FortuneTellerApp {
       });
       
       const data = await response.json();
-      
-      // Check for inappropriate content response
-      if (!response.ok && data.error === 'INAPPROPRIATE') {
-        this.showDeactivatedCard();
-        return;
-      }
-      
       if (!response.ok) throw new Error(data.error || 'Failed to get fortune');
       
       // Show council results instead of single result
@@ -493,13 +462,6 @@ class FortuneTellerApp {
       });
       
       const data = await response.json();
-      
-      // Check for inappropriate content response
-      if (!response.ok && data.error === 'INAPPROPRIATE') {
-        this.showDeactivatedCard();
-        return;
-      }
-      
       if (!response.ok) throw new Error(data.error || 'Failed to get fortune');
       
       // Show council results instead of single result
@@ -764,7 +726,6 @@ class FortuneTellerApp {
     this.errorSection.classList.add('hidden');
     this.loadingSection.classList.add('hidden');
     this.councilSection.classList.add('hidden');
-    this.deactivatedCard.classList.add('hidden');
     
     // Reset council state
     this.councilData = null;

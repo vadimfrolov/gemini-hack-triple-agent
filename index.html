@@ -136,16 +136,6 @@
         <p id="errorText" class="error-message"></p>
         <button id="retryBtn" class="submit-btn">Try Again</button>
       </div>
-
-      <!-- Deactivated Card Section -->
-      <div id="deactivatedCard" class="deactivated-card hidden">
-        <div class="deactivated-content">
-          <div class="deactivated-icon">🔮✖️</div>
-          <h2 class="deactivated-title">Crystal Ball Deactivated</h2>
-          <p class="deactivated-message">The spirits cannot answer this question. Please try asking something more suitable for divination.</p>
-          <button id="tryAgainDeactivatedBtn" class="submit-btn">Try Another Question</button>
-        </div>
-      </div>
     </main>
 
     <footer>
@@ -156,7 +146,7 @@
   <!-- Configuration - Update this with your Worker URL -->
   <script>
     window.CONFIG = {
-      WORKER_URL: 'http://localhost:8788'
+      WORKER_URL: 'http://localhost:8787'
     };
   </script>
   <script src="app.js"></script>

@@ -30,6 +30,13 @@ const AGENTS = [
     prompt: `You are a straightforward fortune teller. Create a realistic prediction of 3-5 sentences based on the following input. The tone should be honest and balanced - sometimes positive, sometimes cautionary, sometimes neutral. Make it feel personal and thoughtful, but grounded in reality:`
   },
   {
+    id: 'mysterious_stranger',
+    name: 'The Mysterious Stranger',
+    emoji: '🌙',
+    color: 'midnight',
+    prompt: `You are a mysterious stranger who sees what others miss. Look beyond the obvious and reveal hidden meanings, subtle patterns, or overlooked details in 2-3 cryptic yet insightful sentences. Speak in shadows and whispers, but provide genuine wisdom. Consider what was said before and add deeper layers:`
+  },
+  {
     id: 'realist',
     name: 'The Realist',
     emoji: '🎯',
@@ -154,63 +161,6 @@ async function generateCouncilFortune(text, apiKey) {
   }
   
   return council;
-}
-
-// Validation check - verify if question is appropriate for fortune teller
-async function validateQuestion(text, apiKey) {
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://fortune-teller.app',
-      'X-Title': 'Fortune Teller App'
-    },
-    body: JSON.stringify({
-      model: MODEL_FORTUNE,
-      messages: [
-        {
-          role: 'system',
-          content: `You are a content safety validator for a fortune teller application. Your job is to determine if a user's question is appropriate to answer.
-
-INAPPROPRIATE TOPICS include:
-- Self-harm, suicide, or violence against self or others
-- Illegal activities (hacking, theft, weapons, drugs)
-- Medical emergencies or serious health concerns
-- Sexual content or explicit material
-- Hate speech or harassment
-- Requests for personal information about real people
-
-APPROPRIATE TOPICS include:
-- Personal life questions (career, love, future)
-- General advice and guidance
-- Spiritual or philosophical questions
-- Fun, lighthearted questions
-- Creative or hypothetical scenarios
-
-Respond with ONLY ONE WORD:
-- "APPROPRIATE" if the question is suitable for a fortune teller to answer
-- "INAPPROPRIATE" if the question contains harmful, illegal, or unsafe content`
-        },
-        {
-          role: 'user',
-          content: `Question: "${text}"`
-        }
-      ],
-      temperature: 0.1,
-      max_tokens: 10
-    })
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Validation API error: ${error}`);
-  }
-
-  const data = await response.json();
-  const result = data.choices[0].message.content.trim().toUpperCase();
-  
-  return { valid: result === 'APPROPRIATE' };
 }
 
 // Rate limiting check
@@ -340,24 +290,6 @@ export default {
           return new Response(JSON.stringify({ error: 'Text is required' }), {
             status: 400,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          });
-        }
-
-        // First, validate if the question is appropriate
-        const validation = await validateQuestion(body.text, apiKey);
-        
-        if (!validation.valid) {
-          return new Response(JSON.stringify({ 
-            error: 'INAPPROPRIATE',
-            message: 'Crystal ball deactivated. Please try another question.'
-          }), {
-            status: 400,
-            headers: { 
-              ...corsHeaders, 
-              'Content-Type': 'application/json',
-              'X-RateLimit-Limit': RATE_LIMIT.toString(),
-              'X-RateLimit-Remaining': rateLimitCheck.remaining.toString()
-            }
           });
         }
 
