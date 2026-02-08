@@ -1,7 +1,9 @@
 // Fortune Teller App - Frontend Logic
 class FortuneTellerApp {
   constructor() {
-    this.workerUrl = window.CONFIG.WORKER_URL;
+    // Force correct worker URL (cache buster v2)
+    this.workerUrl = window.CONFIG?.WORKER_URL || "https://fortune-teller-worker.vadimfrolovde.workers.dev";
+    console.log("Using Worker URL:", this.workerUrl); // Debug log
     this.recognition = null;
     this.transcription = '';
     this.interimTranscript = '';
