@@ -56,7 +56,6 @@ class FortuneTellerApp {
     this.councilSection = document.getElementById('councilSection');
     this.councilCards = document.getElementById('councilCards');
     this.councilProgress = document.getElementById('councilProgress');
-    this.revealNextBtn = document.getElementById('revealNextBtn');
     this.showAllBtn = document.getElementById('showAllBtn');
     this.newCouncilFortuneBtn = document.getElementById('newCouncilFortuneBtn');
   }
@@ -221,7 +220,6 @@ class FortuneTellerApp {
     this.retryBtn.addEventListener('click', () => this.reset());
     
     // Council event listeners
-    this.revealNextBtn.addEventListener('click', () => this.revealNextAgent());
     this.showAllBtn.addEventListener('click', () => this.showAllAgents());
     this.newCouncilFortuneBtn.addEventListener('click', () => this.reset());
     
@@ -530,7 +528,6 @@ class FortuneTellerApp {
     this.councilCards.innerHTML = '';
     
     // Reset buttons
-    this.revealNextBtn.classList.remove('hidden');
     this.showAllBtn.classList.remove('hidden');
     this.newCouncilFortuneBtn.classList.add('hidden');
     
@@ -591,7 +588,6 @@ class FortuneTellerApp {
     
     // Check if all agents revealed
     if (this.currentAgentIndex >= this.councilData.length) {
-      this.revealNextBtn.classList.add('hidden');
       this.showAllBtn.classList.add('hidden');
       this.newCouncilFortuneBtn.classList.remove('hidden');
       
@@ -599,6 +595,11 @@ class FortuneTellerApp {
       if (this.catSpeechBubble) {
         this.catSpeechBubble.innerHTML = 'The Council has spoken! 🐱✨';
       }
+    } else {
+      // Automatically reveal next agent after a short delay
+      setTimeout(() => {
+        this.revealNextAgent();
+      }, 800);
     }
   }
 
@@ -619,7 +620,6 @@ class FortuneTellerApp {
     }
     
     this.updateCouncilProgress();
-    this.revealNextBtn.classList.add('hidden');
     this.showAllBtn.classList.add('hidden');
     this.newCouncilFortuneBtn.classList.remove('hidden');
   }
