@@ -1,0 +1,10 @@
+# Wrangler Configuration
+# This file tells Cloudflare GitHub integration where the worker code is located
+
+name = "fortune-teller-worker"
+main = "worker/src/index.js"
+compatibility_date = "2024-01-01"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "fdd5d875fb954ab5bd814987d406f3f1"
