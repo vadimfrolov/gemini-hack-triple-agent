@@ -10,6 +10,11 @@ class FortuneTellerApp {
     this.recordingStartTime = null;
     this.recordingTimer = null;
     
+    // Council state
+    this.councilData = null;
+    this.currentAgentIndex = 0;
+    this.isRevealing = false;
+    
     this.init();
   }
 
@@ -46,6 +51,14 @@ class FortuneTellerApp {
     this.retryBtn = document.getElementById('retryBtn');
     this.voiceControls = document.getElementById('voiceControls');
     this.catSpeechBubble = document.getElementById('catSpeechBubble');
+    
+    // Council elements
+    this.councilSection = document.getElementById('councilSection');
+    this.councilCards = document.getElementById('councilCards');
+    this.councilProgress = document.getElementById('councilProgress');
+    this.revealNextBtn = document.getElementById('revealNextBtn');
+    this.showAllBtn = document.getElementById('showAllBtn');
+    this.newCouncilFortuneBtn = document.getElementById('newCouncilFortuneBtn');
   }
 
   createVisualizer() {
@@ -206,6 +219,11 @@ class FortuneTellerApp {
     this.voiceSubmitBtn.addEventListener('click', () => this.submitVoice());
     this.newFortuneBtn.addEventListener('click', () => this.reset());
     this.retryBtn.addEventListener('click', () => this.reset());
+    
+    // Council event listeners
+    this.revealNextBtn.addEventListener('click', () => this.revealNextAgent());
+    this.showAllBtn.addEventListener('click', () => this.showAllAgents());
+    this.newCouncilFortuneBtn.addEventListener('click', () => this.reset());
     
     // Record button hover effect - stretch icon toward cursor
     this.recordBtn.addEventListener('mousemove', (e) => {
@@ -409,7 +427,8 @@ class FortuneTellerApp {
     this.showLoading();
     
     try {
-      const response = await fetch(`${this.workerUrl}/api/fortune/text`, {
+      // Use council endpoint for chained agent responses
+      const response = await fetch(`${this.workerUrl}/api/fortune/council`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
@@ -418,7 +437,8 @@ class FortuneTellerApp {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to get fortune');
       
-      this.showResult(data.fortune);
+      // Show council results instead of single result
+      this.showCouncilResult(data.council);
     } catch (error) {
       this.showError(error.message);
     }
@@ -434,7 +454,8 @@ class FortuneTellerApp {
     this.showLoading();
     
     try {
-      const response = await fetch(`${this.workerUrl}/api/fortune/voice`, {
+      // Use council endpoint for chained agent responses
+      const response = await fetch(`${this.workerUrl}/api/fortune/council`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
@@ -443,7 +464,8 @@ class FortuneTellerApp {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to get fortune');
       
-      this.showResult(data.fortune);
+      // Show council results instead of single result
+      this.showCouncilResult(data.council);
     } catch (error) {
       this.showError(error.message);
     }
@@ -453,21 +475,22 @@ class FortuneTellerApp {
     this.textSection.classList.remove('active');
     this.voiceSection.classList.remove('active');
     this.resultSection.classList.add('hidden');
+    this.councilSection.classList.add('hidden');
     this.errorSection.classList.add('hidden');
     this.loadingSection.classList.remove('hidden');
     
-    // Change bubble text to random loading message
+    // Change bubble text to council-specific loading message
     if (this.catSpeechBubble) {
       this.catSpeechBubble.setAttribute('data-loading', 'true');
       const loadingMessages = [
-        'Consulting the crystal ball<span class="loading-dots">...</span>',
-        'Shuffling the tarot cards<span class="loading-dots">...</span>',
-        'Reading the tea leaves<span class="loading-dots">...</span>',
-        'Gazing into the void<span class="loading-dots">...</span>',
-        'Waking up the spirits<span class="loading-dots">...</span>',
-        'Polishing the crystal ball<span class="loading-dots">...</span>',
-        'Channeling cosmic energy<span class="loading-dots">...</span>',
-        'Asking the universe nicely<span class="loading-dots">...</span>'
+        'Gathering the Council<span class="loading-dots">...</span>',
+        'Summoning the Fortune Council<span class="loading-dots">...</span>',
+        'The Council is assembling<span class="loading-dots">...</span>',
+        'Consulting the wise ones<span class="loading-dots">...</span>',
+        'Calling upon the mystical council<span class="loading-dots">...</span>',
+        'The agents are gathering<span class="loading-dots">...</span>',
+        'Preparing the Council of Fate<span class="loading-dots">...</span>',
+        'Channeling multiple visions<span class="loading-dots">...</span>'
       ];
       const randomLoadingMessage = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
       this.catSpeechBubble.innerHTML = randomLoadingMessage;
@@ -482,6 +505,167 @@ class FortuneTellerApp {
     
     // Show result message in bubble
     this.showResultBubbleText();
+  }
+
+  // Council methods
+  showCouncilResult(council) {
+    console.log('showCouncilResult called with:', council);
+    
+    if (!council || !Array.isArray(council) || council.length === 0) {
+      console.error('Invalid council data:', council);
+      this.showError('Error: Invalid response from server');
+      return;
+    }
+    
+    this.councilData = council;
+    this.currentAgentIndex = 0;
+    this.isRevealing = false;
+    
+    console.log('Council data set:', this.councilData);
+    console.log('Council section element:', this.councilSection);
+    console.log('Council cards element:', this.councilCards);
+    
+    this.loadingSection.classList.add('hidden');
+    this.councilSection.classList.remove('hidden');
+    this.councilCards.innerHTML = '';
+    
+    // Reset buttons
+    this.revealNextBtn.classList.remove('hidden');
+    this.showAllBtn.classList.remove('hidden');
+    this.newCouncilFortuneBtn.classList.add('hidden');
+    
+    // Update progress
+    this.updateCouncilProgress();
+    
+    // Show result message in bubble
+    this.showResultBubbleText();
+    
+    // Automatically reveal first agent after a short delay to ensure DOM is ready
+    console.log('About to reveal first agent...');
+    setTimeout(() => {
+      this.revealNextAgent();
+    }, 100);
+  }
+
+  updateCouncilProgress() {
+    if (this.currentAgentIndex < this.councilData.length) {
+      this.councilProgress.textContent = `Council Member ${this.currentAgentIndex + 1} of ${this.councilData.length} speaks...`;
+    } else {
+      this.councilProgress.textContent = '✨ The Council has spoken ✨';
+    }
+  }
+
+  async revealNextAgent() {
+    if (this.isRevealing || this.currentAgentIndex >= this.councilData.length) {
+      console.log('Skipping reveal - already revealing or finished');
+      return;
+    }
+    
+    console.log(`Revealing agent ${this.currentAgentIndex + 1} of ${this.councilData.length}`);
+    this.isRevealing = true;
+    const agent = this.councilData[this.currentAgentIndex];
+    
+    // Create card for this agent
+    const card = this.createCouncilCard(agent, this.currentAgentIndex);
+    console.log('Created card:', card);
+    this.councilCards.appendChild(card);
+    console.log('Appended card to councilCards');
+    
+    // Animate card appearance - force reflow then add visible class
+    void card.offsetHeight; // Force reflow
+    requestAnimationFrame(() => {
+      card.classList.add('visible');
+      console.log('Card classes after animation:', card.className);
+    });
+    
+    // Type out the response
+    const textElement = card.querySelector('.council-response');
+    console.log('Text element:', textElement);
+    await this.typeWriter(textElement, agent.response);
+    
+    this.currentAgentIndex++;
+    this.isRevealing = false;
+    
+    // Update progress
+    this.updateCouncilProgress();
+    
+    // Check if all agents revealed
+    if (this.currentAgentIndex >= this.councilData.length) {
+      this.revealNextBtn.classList.add('hidden');
+      this.showAllBtn.classList.add('hidden');
+      this.newCouncilFortuneBtn.classList.remove('hidden');
+      
+      // Show completion message in bubble
+      if (this.catSpeechBubble) {
+        this.catSpeechBubble.innerHTML = 'The Council has spoken! 🐱✨';
+      }
+    }
+  }
+
+  showAllAgents() {
+    // Reveal all remaining agents at once
+    while (this.currentAgentIndex < this.councilData.length) {
+      const agent = this.councilData[this.currentAgentIndex];
+      const card = this.createCouncilCard(agent, this.currentAgentIndex);
+      this.councilCards.appendChild(card);
+      
+      // Show full text immediately (no typewriter)
+      const textElement = card.querySelector('.council-response');
+      textElement.textContent = agent.response;
+      
+      // Make visible immediately
+      card.classList.add('visible');
+      this.currentAgentIndex++;
+    }
+    
+    this.updateCouncilProgress();
+    this.revealNextBtn.classList.add('hidden');
+    this.showAllBtn.classList.add('hidden');
+    this.newCouncilFortuneBtn.classList.remove('hidden');
+  }
+
+  createCouncilCard(agent, index) {
+    const card = document.createElement('div');
+    card.className = `council-card council-card-${agent.color}`;
+    
+    card.innerHTML = `
+      <div class="council-card-header">
+        <span class="council-emoji">${agent.emoji}</span>
+        <div class="council-info">
+          <h3 class="council-name">${agent.name}</h3>
+          <span class="council-number">#${index + 1}</span>
+        </div>
+      </div>
+      <p class="council-response"></p>
+    `;
+    
+    return card;
+  }
+
+  typeWriter(element, text) {
+    return new Promise((resolve) => {
+      if (!element || !text) {
+        console.log('TypeWriter: missing element or text', { element, text });
+        resolve();
+        return;
+      }
+      
+      element.textContent = '';
+      let i = 0;
+      const speed = 25; // ms per character
+      
+      const type = () => {
+        if (i < text.length) {
+          element.textContent += text.charAt(i);
+          i++;
+          setTimeout(type, speed);
+        } else {
+          resolve();
+        }
+      };
+      
+      type();
+    });
   }
 
   showResultBubbleText() {
@@ -515,6 +699,7 @@ class FortuneTellerApp {
 
   showError(message) {
     this.loadingSection.classList.add('hidden');
+    this.councilSection.classList.add('hidden');
     this.errorText.textContent = message;
     this.errorSection.classList.remove('hidden');
     
@@ -540,6 +725,13 @@ class FortuneTellerApp {
     this.resultSection.classList.add('hidden');
     this.errorSection.classList.add('hidden');
     this.loadingSection.classList.add('hidden');
+    this.councilSection.classList.add('hidden');
+    
+    // Reset council state
+    this.councilData = null;
+    this.currentAgentIndex = 0;
+    this.isRevealing = false;
+    
     this.switchMode('text');
   }
 }

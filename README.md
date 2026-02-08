@@ -10,10 +10,17 @@ GitHub Pages (Frontend) → Cloudflare Worker (Proxy) → OpenRouter API
 
 ## Features
 
+- **The Council of Fate**: Chain of 4 AI agents providing different perspectives on your fortune
+  - 🧙‍♀️ The Fortune Teller - Balanced, realistic predictions
+  - 🌙 The Mysterious Stranger - Cryptic insights and hidden meanings  
+  - ☀️ The Optimist - Positive opportunities and silver linings
+  - 🐱 The Wise Cat - Playful wisdom with a feline twist
 - Text input for direct fortune generation
 - Voice input with recording, playback, and retake options
+- Sequential reveal with typewriter animation
+- "Show Full Reading" option to reveal all at once
 - Rate limiting (10 requests/minute per IP)
-- Minimalist black & white design
+- Minimalist black & white design with agent-specific color accents
 
 ## Setup Instructions
 
@@ -49,20 +56,58 @@ wrangler deploy
 ## File Structure
 
 ```
-├── index.html              # Frontend HTML
-├── styles.css              # Black & white styles
-├── app.js                  # Frontend JavaScript
+├── index.html              # Frontend HTML with council result section
+├── styles.css              # Black & white styles + council card themes
+├── app.js                  # Frontend JavaScript with council logic
 └── worker/
     ├── src/
-    │   └── index.js        # Cloudflare Worker
+    │   └── index.js        # Cloudflare Worker with 4-agent chain
     ├── wrangler.toml       # Worker config
     └── package.json        # Worker dependencies
 ```
 
 ## API Endpoints
 
-- `POST /api/fortune/text` - Direct text to fortune
-- `POST /api/fortune/voice` - Voice transcription to fortune
+- `POST /api/fortune/text` - Direct text to fortune (legacy single response)
+- `POST /api/fortune/voice` - Voice transcription to fortune (legacy single response)
+- `POST /api/fortune/council` - **NEW**: Chain of 4 agents for multi-perspective fortune
+
+### Council Response Format
+
+```json
+{
+  "council": [
+    {
+      "id": "fortune_teller",
+      "name": "The Fortune Teller",
+      "emoji": "🧙‍♀️",
+      "color": "purple",
+      "response": "Your fortune text here..."
+    },
+    {
+      "id": "mysterious_stranger",
+      "name": "The Mysterious Stranger",
+      "emoji": "🌙",
+      "color": "midnight",
+      "response": "Hidden meanings revealed..."
+    },
+    {
+      "id": "optimist",
+      "name": "The Optimist",
+      "emoji": "☀️",
+      "color": "gold",
+      "response": "Silver linings found..."
+    },
+    {
+      "id": "wise_cat",
+      "name": "The Wise Cat",
+      "emoji": "🐱",
+      "color": "orange",
+      "response": "Meow! Here's my advice..."
+    }
+  ]
+}
+```
 
 ## Troubleshooting Voice Input
 

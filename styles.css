@@ -711,3 +711,129 @@ footer p {
   font-size: 0.75rem;
   opacity: 0.5;
 }
+
+/* Council Section Styles */
+.council-section {
+  animation: fadeIn 0.5s ease;
+}
+
+.council-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.council-header h2 {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.council-progress {
+  font-size: 1rem;
+  opacity: 0.7;
+  font-style: italic;
+  animation: fadeInOut 2s ease-in-out infinite;
+}
+
+.council-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.council-card {
+  background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
+  border: 3px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
+  transition: all 0.5s ease;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.council-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Agent-specific color themes */
+.council-card-purple {
+  border-color: #6b4c9a;
+  background: linear-gradient(135deg, #f3f0f7 0%, #ffffff 100%);
+}
+
+.council-card-midnight {
+  border-color: #2c3e50;
+  background: linear-gradient(135deg, #e8eef2 0%, #ffffff 100%);
+}
+
+.council-card-gold {
+  border-color: #d4af37;
+  background: linear-gradient(135deg, #faf8f0 0%, #ffffff 100%);
+}
+
+.council-card-orange {
+  border-color: #e67e22;
+  background: linear-gradient(135deg, #fdf6f0 0%, #ffffff 100%);
+}
+
+.council-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.council-emoji {
+  font-size: 2.5rem;
+  animation: emojiBounce 2s ease-in-out infinite;
+}
+
+@keyframes emojiBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.council-info {
+  flex: 1;
+}
+
+.council-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.council-number {
+  font-size: 0.875rem;
+  opacity: 0.5;
+  font-weight: 500;
+}
+
+.council-response {
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  font-style: italic;
+  margin: 0;
+  min-height: 3em;
+}
+
+.council-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.council-actions .submit-btn,
+.council-actions .control-btn {
+  margin: 0;
+}
+
+.council-actions .control-btn.secondary {
+  width: 100%;
+  padding: 0.75rem;
+}
