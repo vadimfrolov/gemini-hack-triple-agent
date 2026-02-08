@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'worker/**'
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -19,7 +20,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: 'worker'
-          secrets: |
-            OPENROUTER_API_KEY
-        env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          # Secrets are already configured in Cloudflare via wrangler CLI
+          # No need to upload them on every deployment
