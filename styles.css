@@ -874,4 +874,13 @@ footer p {
   .speech-bubble {
     order: 1;
   }
+
+  /* Hide voice input on mobile */
+  #voiceModeBtn {
+    display: none !important;
+  }
+
+  #voiceSection {
+    display: none !important;
+  }
 }
