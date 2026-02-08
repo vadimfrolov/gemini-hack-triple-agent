@@ -9,8 +9,8 @@ grep "id =" wrangler.toml
 echo ""
 
 echo "2. Testing worker endpoint..."
-echo "Testing: https://fortune-teller-worker.vadimfrolov.workers.dev/api/fortune/council"
-curl -X POST https://fortune-teller-worker.vadimfrolov.workers.dev/api/fortune/council \
+echo "Testing: https://fortune-teller-worker.vadimfrolovde.workers.dev/api/fortune/council"
+curl -X POST https://fortune-teller-worker.vadimfrolovde.workers.dev/api/fortune/council \
   -H 'Content-Type: application/json' \
   -H 'Origin: https://vadimfrolov.github.io' \
   -d '{"text": "test"}' \
