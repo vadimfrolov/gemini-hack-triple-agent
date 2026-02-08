@@ -30,13 +30,6 @@ const AGENTS = [
     prompt: `You are a straightforward fortune teller. Create a realistic prediction of 3-5 sentences based on the following input. The tone should be honest and balanced - sometimes positive, sometimes cautionary, sometimes neutral. Make it feel personal and thoughtful, but grounded in reality:`
   },
   {
-    id: 'mysterious_stranger',
-    name: 'The Mysterious Stranger',
-    emoji: '🌙',
-    color: 'midnight',
-    prompt: `You are a mysterious stranger who sees what others miss. Look beyond the obvious and reveal hidden meanings, subtle patterns, or overlooked details in 2-3 cryptic yet insightful sentences. Speak in shadows and whispers, but provide genuine wisdom. Consider what was said before and add deeper layers:`
-  },
-  {
     id: 'realist',
     name: 'The Realist',
     emoji: '🎯',
@@ -95,7 +88,7 @@ async function generateFortune(text, apiKey) {
 async function generateCouncilFortune(text, apiKey) {
   const council = [];
   const conversationHistory = [];
-  
+
   for (const agent of AGENTS) {
     // Build messages array with context
     const messages = [
@@ -108,7 +101,7 @@ async function generateCouncilFortune(text, apiKey) {
         content: `Original question: "${text}"`
       }
     ];
-    
+
     // Add previous agent responses as context
     if (conversationHistory.length > 0) {
       messages.push({
@@ -120,7 +113,7 @@ async function generateCouncilFortune(text, apiKey) {
         content: 'Now it is your turn to speak. What do you see?'
       });
     }
-    
+
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -144,7 +137,7 @@ async function generateCouncilFortune(text, apiKey) {
 
     const data = await response.json();
     const fortuneText = data.choices[0].message.content;
-    
+
     council.push({
       id: agent.id,
       name: agent.name,
@@ -152,14 +145,14 @@ async function generateCouncilFortune(text, apiKey) {
       color: agent.color,
       response: fortuneText
     });
-    
+
     // Add to conversation history for next agent
     conversationHistory.push({
       name: agent.name,
       response: fortuneText
     });
   }
-  
+
   return council;
 }
 
@@ -170,24 +163,24 @@ async function checkRateLimit(clientIP, env) {
     console.log('KV namespace not available, skipping rate limit');
     return { allowed: true, remaining: RATE_LIMIT };
   }
-  
+
   const key = `rate_limit:${clientIP}`;
-  
+
   // Get current count from KV
   const current = await env.RATE_LIMIT_KV.get(key);
-  
+
   if (!current) {
     // First request in window
     await env.RATE_LIMIT_KV.put(key, '1', { expirationTtl: RATE_LIMIT_WINDOW });
     return { allowed: true, remaining: RATE_LIMIT - 1 };
   }
-  
+
   const count = parseInt(current);
-  
+
   if (count >= RATE_LIMIT) {
     return { allowed: false, remaining: 0 };
   }
-  
+
   // Increment count
   await env.RATE_LIMIT_KV.put(key, (count + 1).toString(), { expirationTtl: RATE_LIMIT_WINDOW });
   return { allowed: true, remaining: RATE_LIMIT - count - 1 };
@@ -213,14 +206,14 @@ export default {
 
     // Check rate limit
     const rateLimitCheck = await checkRateLimit(clientIP, env);
-    
+
     if (!rateLimitCheck.allowed) {
-      return new Response(JSON.stringify({ 
-        error: 'Rate limit exceeded. Please try again in a minute.' 
+      return new Response(JSON.stringify({
+        error: 'Rate limit exceeded. Please try again in a minute.'
       }), {
         status: 429,
-        headers: { 
-          ...corsHeaders, 
+        headers: {
+          ...corsHeaders,
           'Content-Type': 'application/json',
           'X-RateLimit-Limit': RATE_LIMIT.toString(),
           'X-RateLimit-Remaining': '0'
@@ -251,10 +244,10 @@ export default {
         }
 
         const fortune = await generateFortune(body.text, apiKey);
-        
+
         return new Response(JSON.stringify({ fortune }), {
-          headers: { 
-            ...corsHeaders, 
+          headers: {
+            ...corsHeaders,
             'Content-Type': 'application/json',
             'X-RateLimit-Limit': RATE_LIMIT.toString(),
             'X-RateLimit-Remaining': rateLimitCheck.remaining.toString()
@@ -271,13 +264,13 @@ export default {
         }
 
         const fortune = await generateFortune(body.text, apiKey);
-        
-        return new Response(JSON.stringify({ 
+
+        return new Response(JSON.stringify({
           transcription: body.text,
-          fortune 
+          fortune
         }), {
-          headers: { 
-            ...corsHeaders, 
+          headers: {
+            ...corsHeaders,
             'Content-Type': 'application/json',
             'X-RateLimit-Limit': RATE_LIMIT.toString(),
             'X-RateLimit-Remaining': rateLimitCheck.remaining.toString()
@@ -294,10 +287,10 @@ export default {
         }
 
         const council = await generateCouncilFortune(body.text, apiKey);
-        
+
         return new Response(JSON.stringify({ council }), {
-          headers: { 
-            ...corsHeaders, 
+          headers: {
+            ...corsHeaders,
             'Content-Type': 'application/json',
             'X-RateLimit-Limit': RATE_LIMIT.toString(),
             'X-RateLimit-Remaining': rateLimitCheck.remaining.toString()
@@ -313,14 +306,14 @@ export default {
 
     } catch (error) {
       console.error('Error:', error);
-      
-      return new Response(JSON.stringify({ 
+
+      return new Response(JSON.stringify({
         error: 'Internal server error',
-        message: error.message 
+        message: error.message
       }), {
         status: 500,
-        headers: { 
-          ...corsHeaders, 
+        headers: {
+          ...corsHeaders,
           'Content-Type': 'application/json',
           'X-RateLimit-Limit': RATE_LIMIT.toString(),
           'X-RateLimit-Remaining': rateLimitCheck.remaining.toString()
