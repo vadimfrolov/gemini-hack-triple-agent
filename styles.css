@@ -960,7 +960,7 @@ footer p {
 .action-plan-content .todo-item::before {
   content: '✓';
   position: absolute;
-  left: -14px;
+  left: -16px;
   top: 50%;
   transform: translateY(-50%);
   width: 24px;
