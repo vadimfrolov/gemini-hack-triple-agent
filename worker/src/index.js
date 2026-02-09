@@ -15,11 +15,6 @@ const corsHeaders = {
 const RATE_LIMIT = 10; // requests per minute
 const RATE_LIMIT_WINDOW = 60; // seconds
 
-// Model configuration
-// Note: Transcription is handled by browser's Web Speech API, not an AI model
-// Using free model: Gemma 2 27B (Gemma 3 not yet available on OpenRouter)
-const MODEL_FORTUNE = 'google/gemma-2-27b-it';
-
 // Agent personas for the Fortune Council
 const AGENTS = [
   {
@@ -49,7 +44,7 @@ const AGENTS = [
 const FORTUNE_PROMPT = AGENTS[0].prompt;
 
 // Helper function to generate fortune
-async function generateFortune(text, apiKey) {
+async function generateFortune(text, apiKey, model) {
   const response = await fetch(
     "https://openrouter.ai/api/v1/chat/completions",
     {
@@ -61,7 +56,7 @@ async function generateFortune(text, apiKey) {
         "X-Title": "Fortune Teller App",
       },
       body: JSON.stringify({
-        model: MODEL_FORTUNE,
+        model: model,
         messages: [
           {
             role: "system",
@@ -88,7 +83,7 @@ async function generateFortune(text, apiKey) {
 }
 
 // Helper function to generate council of agents responses
-async function generateCouncilFortune(text, apiKey) {
+async function generateCouncilFortune(text, apiKey, model) {
   const council = [];
   const conversationHistory = [];
 
@@ -132,7 +127,7 @@ async function generateCouncilFortune(text, apiKey) {
           "X-Title": "Fortune Teller App",
         },
         body: JSON.stringify({
-          model: MODEL_FORTUNE,
+          model: model,
           messages: messages,
           temperature: 0.85,
           max_tokens: 150,
@@ -246,6 +241,9 @@ export default {
       });
     }
 
+    // Get model from environment variable with fallback
+    const model = env.MODEL_FORTUNE || 'google/gemma-2-27b-it';
+
     try {
       const body = await request.json();
 
@@ -258,7 +256,7 @@ export default {
           });
         }
 
-        const fortune = await generateFortune(body.text, apiKey);
+        const fortune = await generateFortune(body.text, apiKey, model);
 
         return new Response(JSON.stringify({ fortune }), {
           headers: {
@@ -280,7 +278,7 @@ export default {
           );
         }
 
-        const fortune = await generateFortune(body.text, apiKey);
+        const fortune = await generateFortune(body.text, apiKey, model);
 
         return new Response(
           JSON.stringify({
@@ -305,7 +303,7 @@ export default {
           });
         }
 
-        const council = await generateCouncilFortune(body.text, apiKey);
+        const council = await generateCouncilFortune(body.text, apiKey, model);
 
         return new Response(JSON.stringify({ council }), {
           headers: {
