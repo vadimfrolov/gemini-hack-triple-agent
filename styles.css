@@ -838,6 +838,85 @@ footer p {
   padding: 0.75rem;
 }
 
+/* Action Plan Section */
+.action-plan-section {
+  animation: fadeIn 0.5s ease;
+}
+
+.action-plan-prompt {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.action-plan-prompt h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  letter-spacing: 0.05em;
+}
+
+.action-plan-prompt p {
+  font-size: 1rem;
+  opacity: 0.8;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.action-input-group {
+  margin-top: 1.5rem;
+}
+
+.goal-input {
+  width: 100%;
+  padding: 1rem;
+  font-family: inherit;
+  font-size: 1rem;
+  border: 3px solid var(--border-color);
+  border-radius: 8px;
+  resize: vertical;
+  min-height: 80px;
+  transition: all 0.3s ease;
+}
+
+.goal-input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.action-buttons .submit-btn {
+  flex: 1;
+  min-width: 200px;
+}
+
+.action-plan-result {
+  animation: fadeIn 0.5s ease;
+}
+
+.action-plan-result h3 {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.action-plan-content {
+  background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
+  border: 3px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.1);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
 /* Mobile Responsive Styles */
 @media (max-width: 600px) {
   /* Reposition bubbles below the cat on mobile */

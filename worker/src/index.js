@@ -161,6 +161,67 @@ async function generateCouncilFortune(text, apiKey, model) {
   return council;
 }
 
+// Helper function to generate action plan with to-do list
+async function generateActionPlan(originalQuestion, councilResponses, userGoal, apiKey, model) {
+  // Build context from council responses
+  const councilContext = councilResponses
+    .map((c) => `${c.name} ${c.emoji}: "${c.response}"`)
+    .join('\n\n');
+
+  const prompt = `Based on this fortune-telling session, create a practical action plan.
+
+ORIGINAL QUESTION: "${originalQuestion}"
+
+COUNCIL INSIGHTS:
+${councilContext}
+
+USER'S ACTUAL GOAL: "${userGoal}"
+
+Create a clear, actionable to-do list with 5-7 concrete steps to help the user achieve their goal. Each step should be:
+- Specific and actionable
+- Practical and realistic
+- Building on the insights from the council
+- Numbered clearly
+
+Format as a clean numbered list with brief explanations for each step. Be encouraging but practical.`;
+
+  const response = await fetch(
+    "https://openrouter.ai/api/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://fortune-teller.app",
+        "X-Title": "Fortune Teller App",
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [
+          {
+            role: "system",
+            content: "You are a practical advisor who creates clear, actionable to-do lists based on fortune-telling insights.",
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        temperature: 0.7,
+        max_tokens: 500,
+      }),
+    },
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`OpenRouter API error: ${error}`);
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content;
+}
+
 // Rate limiting check
 async function checkRateLimit(clientIP, env) {
   // Skip rate limiting if KV namespace is not available (local dev)
@@ -306,6 +367,44 @@ export default {
         const council = await generateCouncilFortune(body.text, apiKey, model);
 
         return new Response(JSON.stringify({ council }), {
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "X-RateLimit-Limit": RATE_LIMIT.toString(),
+            "X-RateLimit-Remaining": rateLimitCheck.remaining.toString(),
+          },
+        });
+      } else if (url.pathname === "/api/fortune/action-plan") {
+        // NEW: Generate action plan with to-do list
+        if (!body.originalQuestion || !body.councilResponses || !body.userGoal) {
+          return new Response(
+            JSON.stringify({ error: "Missing required fields: originalQuestion, councilResponses, and userGoal" }),
+            {
+              status: 400,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            }
+          );
+        }
+
+        if (!body.userGoal.trim()) {
+          return new Response(
+            JSON.stringify({ error: "Please tell us what you really want to achieve" }),
+            {
+              status: 400,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            }
+          );
+        }
+
+        const actionPlan = await generateActionPlan(
+          body.originalQuestion,
+          body.councilResponses,
+          body.userGoal,
+          apiKey,
+          model
+        );
+
+        return new Response(JSON.stringify({ actionPlan }), {
           headers: {
             ...corsHeaders,
             "Content-Type": "application/json",

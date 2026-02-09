@@ -150,6 +150,38 @@
           </div>
         </div>
 
+        <!-- Action Plan Section -->
+        <div id="actionPlanSection" class="action-plan-section hidden">
+          <div class="action-plan-prompt">
+            <h2>🎯 What Do You Really Want?</h2>
+            <p>The Council has spoken. Now tell us what you truly want to achieve, and we'll create a practical action plan for you.</p>
+            <div class="action-input-group">
+              <textarea
+                id="actionGoalInput"
+                class="goal-input"
+                placeholder="What do you really want to achieve? (e.g., 'I want to start my own business' or 'I want to improve my health')..."
+                rows="3"
+              ></textarea>
+              <div class="action-buttons">
+                <button id="createActionPlanBtn" class="submit-btn">
+                  Create My Action Plan ✨
+                </button>
+                <button id="skipActionPlanBtn" class="submit-btn secondary">
+                  No Thanks
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="actionPlanResult" class="action-plan-result hidden">
+            <h3>📋 Your Action Plan</h3>
+            <div id="actionPlanContent" class="action-plan-content"></div>
+            <button id="newActionFortuneBtn" class="submit-btn secondary">
+              Ask the Council Again
+            </button>
+          </div>
+        </div>
+
         <!-- Error Section -->
         <div id="errorSection" class="error-section hidden">
           <p id="errorText" class="error-message"></p>

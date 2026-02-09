@@ -16,6 +16,7 @@ class FortuneTellerApp {
     this.councilData = null;
     this.currentAgentIndex = 0;
     this.isRevealing = false;
+    this.originalQuestion = ''; // Store the original question for action plan
     
     this.init();
   }
@@ -60,6 +61,15 @@ class FortuneTellerApp {
     this.councilProgress = document.getElementById('councilProgress');
     this.showAllBtn = document.getElementById('showAllBtn');
     this.newCouncilFortuneBtn = document.getElementById('newCouncilFortuneBtn');
+    
+    // Action plan elements
+    this.actionPlanSection = document.getElementById('actionPlanSection');
+    this.actionGoalInput = document.getElementById('actionGoalInput');
+    this.createActionPlanBtn = document.getElementById('createActionPlanBtn');
+    this.skipActionPlanBtn = document.getElementById('skipActionPlanBtn');
+    this.actionPlanResult = document.getElementById('actionPlanResult');
+    this.actionPlanContent = document.getElementById('actionPlanContent');
+    this.newActionFortuneBtn = document.getElementById('newActionFortuneBtn');
   }
 
   createVisualizer() {
@@ -225,6 +235,11 @@ class FortuneTellerApp {
     this.showAllBtn.addEventListener('click', () => this.showAllAgents());
     this.newCouncilFortuneBtn.addEventListener('click', () => this.reset());
     
+    // Action plan event listeners
+    this.createActionPlanBtn.addEventListener('click', () => this.createActionPlan());
+    this.skipActionPlanBtn.addEventListener('click', () => this.reset());
+    this.newActionFortuneBtn.addEventListener('click', () => this.reset());
+    
     // Record button hover effect - stretch icon toward cursor
     this.recordBtn.addEventListener('mousemove', (e) => {
       const rect = this.recordBtn.getBoundingClientRect();
@@ -243,6 +258,13 @@ class FortuneTellerApp {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         this.submitText();
+      }
+    });
+    
+    this.actionGoalInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        this.createActionPlan();
       }
     });
   }
@@ -424,6 +446,7 @@ class FortuneTellerApp {
       return;
     }
     
+    this.originalQuestion = text; // Store the original question
     this.showLoading();
     
     try {
@@ -451,6 +474,7 @@ class FortuneTellerApp {
       return;
     }
     
+    this.originalQuestion = text; // Store the original question
     this.showLoading();
     
     try {
@@ -591,12 +615,17 @@ class FortuneTellerApp {
     // Check if all agents revealed
     if (this.currentAgentIndex >= this.councilData.length) {
       this.showAllBtn.classList.add('hidden');
-      this.newCouncilFortuneBtn.classList.remove('hidden');
+      this.newCouncilFortuneBtn.classList.add('hidden'); // Hide the "Ask Again" button
       
       // Show completion message in bubble
       if (this.catSpeechBubble) {
-        this.catSpeechBubble.innerHTML = 'The Council has spoken! 🐱✨';
+        this.catSpeechBubble.innerHTML = 'The Council has spoken! Now, what do you really want? 🐱✨';
       }
+      
+      // Show action plan section after a short delay
+      setTimeout(() => {
+        this.showActionPlanPrompt();
+      }, 1000);
     } else {
       // Automatically reveal next agent after a short delay
       setTimeout(() => {
@@ -623,7 +652,12 @@ class FortuneTellerApp {
     
     this.updateCouncilProgress();
     this.showAllBtn.classList.add('hidden');
-    this.newCouncilFortuneBtn.classList.remove('hidden');
+    this.newCouncilFortuneBtn.classList.add('hidden'); // Hide the "Ask Again" button
+    
+    // Show action plan section after revealing all agents
+    setTimeout(() => {
+      this.showActionPlanPrompt();
+    }, 500);
   }
 
   createCouncilCard(agent, index) {
@@ -684,7 +718,68 @@ class FortuneTellerApp {
       this.catSpeechBubble.innerHTML = randomMessage;
     }
   }
+  // Action Plan Methods
+  showActionPlanPrompt() {
+    // Show the action plan section
+    this.actionPlanSection.classList.remove('hidden');
+    this.actionGoalInput.value = '';
+    this.actionPlanResult.classList.add('hidden');
+    
+    // Scroll to action plan section
+    this.actionPlanSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 
+  async createActionPlan() {
+    const userGoal = this.actionGoalInput.value.trim();
+    
+    if (!userGoal) {
+      alert('Please tell us what you really want to achieve');
+      return;
+    }
+    
+    // Show loading state
+    this.createActionPlanBtn.disabled = true;
+    this.createActionPlanBtn.textContent = 'Creating Your Plan... ✨';
+    
+    try {
+      const response = await fetch(`${this.workerUrl}/api/fortune/action-plan`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          originalQuestion: this.originalQuestion,
+          councilResponses: this.councilData,
+          userGoal: userGoal
+        }),
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Failed to create action plan');
+      
+      // Show the action plan result
+      this.showActionPlanResult(data.actionPlan);
+    } catch (error) {
+      alert('Error creating action plan: ' + error.message);
+      this.createActionPlanBtn.disabled = false;
+      this.createActionPlanBtn.textContent = 'Create My Action Plan ✨';
+    }
+  }
+
+  showActionPlanResult(actionPlan) {
+    // Hide the prompt, show the result
+    this.actionPlanResult.classList.remove('hidden');
+    this.actionPlanContent.textContent = actionPlan;
+    
+    // Hide the input section
+    document.querySelector('.action-plan-prompt').style.display = 'none';
+    
+    // Update cat bubble
+    if (this.catSpeechBubble) {
+      this.catSpeechBubble.innerHTML = 'Your path is clear! Now go make it happen! 🐱🎯';
+    }
+    
+    // Scroll to result
+    this.actionPlanResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
   animateFortuneText() {
     const text = this.fortuneText.textContent;
     this.fortuneText.textContent = '';
@@ -728,11 +823,23 @@ class FortuneTellerApp {
     this.errorSection.classList.add('hidden');
     this.loadingSection.classList.add('hidden');
     this.councilSection.classList.add('hidden');
+    this.actionPlanSection.classList.add('hidden');
     
     // Reset council state
     this.councilData = null;
     this.currentAgentIndex = 0;
     this.isRevealing = false;
+    this.originalQuestion = '';
+    
+    // Reset action plan state
+    this.actionGoalInput.value = '';
+    this.actionPlanResult.classList.add('hidden');
+    this.createActionPlanBtn.disabled = false;
+    this.createActionPlanBtn.textContent = 'Create My Action Plan ✨';
+    const promptSection = document.querySelector('.action-plan-prompt');
+    if (promptSection) {
+      promptSection.style.display = '';
+    }
     
     this.switchMode('text');
   }
