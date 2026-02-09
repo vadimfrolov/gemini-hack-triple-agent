@@ -59,7 +59,6 @@ class FortuneTellerApp {
     this.councilSection = document.getElementById('councilSection');
     this.councilCards = document.getElementById('councilCards');
     this.councilProgress = document.getElementById('councilProgress');
-    this.showAllBtn = document.getElementById('showAllBtn');
     this.newCouncilFortuneBtn = document.getElementById('newCouncilFortuneBtn');
     
     // Action plan elements
@@ -232,7 +231,6 @@ class FortuneTellerApp {
     this.retryBtn.addEventListener('click', () => this.reset());
     
     // Council event listeners
-    this.showAllBtn.addEventListener('click', () => this.showAllAgents());
     this.newCouncilFortuneBtn.addEventListener('click', () => this.reset());
     
     // Action plan event listeners
@@ -554,7 +552,6 @@ class FortuneTellerApp {
     this.councilCards.innerHTML = '';
     
     // Reset buttons
-    this.showAllBtn.classList.remove('hidden');
     this.newCouncilFortuneBtn.classList.add('hidden');
     
     // Update progress
@@ -614,7 +611,6 @@ class FortuneTellerApp {
     
     // Check if all agents revealed
     if (this.currentAgentIndex >= this.councilData.length) {
-      this.showAllBtn.classList.add('hidden');
       this.newCouncilFortuneBtn.classList.add('hidden'); // Hide the "Ask Again" button
       
       // Show completion message in bubble
@@ -632,32 +628,6 @@ class FortuneTellerApp {
         this.revealNextAgent();
       }, 800);
     }
-  }
-
-  showAllAgents() {
-    // Reveal all remaining agents at once
-    while (this.currentAgentIndex < this.councilData.length) {
-      const agent = this.councilData[this.currentAgentIndex];
-      const card = this.createCouncilCard(agent, this.currentAgentIndex);
-      this.councilCards.appendChild(card);
-      
-      // Show full text immediately (no typewriter)
-      const textElement = card.querySelector('.council-response');
-      textElement.textContent = agent.response;
-      
-      // Make visible immediately
-      card.classList.add('visible');
-      this.currentAgentIndex++;
-    }
-    
-    this.updateCouncilProgress();
-    this.showAllBtn.classList.add('hidden');
-    this.newCouncilFortuneBtn.classList.add('hidden'); // Hide the "Ask Again" button
-    
-    // Show action plan section after revealing all agents
-    setTimeout(() => {
-      this.showActionPlanPrompt();
-    }, 500);
   }
 
   createCouncilCard(agent, index) {
