@@ -1,11 +1,12 @@
 name: Deploy Worker
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'worker/**'
+  # Disabled automatic deployment - deploy manually via CLI
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'worker/**'
   workflow_dispatch:
 
 jobs:
