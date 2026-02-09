@@ -737,9 +737,8 @@ class FortuneTellerApp {
       return;
     }
     
-    // Show loading state
-    this.createActionPlanBtn.disabled = true;
-    this.createActionPlanBtn.textContent = 'Creating Your Plan... ✨';
+    // Show crystal ball loader
+    this.showActionPlanLoading();
     
     try {
       const response = await fetch(`${this.workerUrl}/api/fortune/action-plan`, {
@@ -757,14 +756,37 @@ class FortuneTellerApp {
       // Show the action plan result
       this.showActionPlanResult(data.actionPlan);
     } catch (error) {
+      this.loadingSection.classList.add('hidden');
+      this.actionPlanSection.classList.remove('hidden');
       alert('Error creating action plan: ' + error.message);
-      this.createActionPlanBtn.disabled = false;
-      this.createActionPlanBtn.textContent = 'Create My Action Plan ✨';
+    }
+  }
+
+  showActionPlanLoading() {
+    // Hide all sections and show loading
+    this.actionPlanSection.classList.add('hidden');
+    this.loadingSection.classList.remove('hidden');
+    
+    // Update cat bubble with action plan loading message
+    if (this.catSpeechBubble) {
+      this.catSpeechBubble.setAttribute('data-loading', 'true');
+      const loadingMessages = [
+        'Crafting your action plan<span class="loading-dots">...</span>',
+        'Mapping your path to success<span class="loading-dots">...</span>',
+        'Designing your destiny<span class="loading-dots">...</span>',
+        'Creating your roadmap<span class="loading-dots">...</span>',
+        'Planning your journey<span class="loading-dots">...</span>',
+        'Building your blueprint<span class="loading-dots">...</span>'
+      ];
+      const randomMessage = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+      this.catSpeechBubble.innerHTML = randomMessage;
     }
   }
 
   showActionPlanResult(actionPlan) {
-    // Hide the prompt, show the result
+    // Hide loading, show result
+    this.loadingSection.classList.add('hidden');
+    this.actionPlanSection.classList.remove('hidden');
     this.actionPlanResult.classList.remove('hidden');
     this.actionPlanContent.innerHTML = this.parseMarkdown(actionPlan);
     
@@ -875,8 +897,6 @@ class FortuneTellerApp {
     // Reset action plan state
     this.actionGoalInput.value = '';
     this.actionPlanResult.classList.add('hidden');
-    this.createActionPlanBtn.disabled = false;
-    this.createActionPlanBtn.textContent = 'Create My Action Plan ✨';
     const promptSection = document.querySelector('.action-plan-prompt');
     if (promptSection) {
       promptSection.style.display = '';
