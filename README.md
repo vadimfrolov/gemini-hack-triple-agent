@@ -4,6 +4,10 @@ _"Any sufficiently advanced API is indistinguishable from magic."_ - Probably so
 
 Behold! A mystical web contraption powered by the ancient arts of Google DeepMind's Gemini 3 sorcery. Constructed from the finest HTML runes, CSS enchantments, JavaScript incantations, and Cloudflare Workers' ethereal mists.
 
+## ✨ Demo
+
+**https://vadimfrolov.github.io/gemini-hack-triple-agent/**
+
 ## ⚡ Why This Mystical Contraption Matters ⚡
 
 **🔧 Technical Execution** - *The Craftsmanship of Our Spellwork*
