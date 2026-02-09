@@ -162,28 +162,20 @@ async function generateCouncilFortune(text, apiKey, model) {
 }
 
 // Helper function to generate action plan with to-do list
-async function generateActionPlan(originalQuestion, councilResponses, userGoal, apiKey, model) {
-  // Build context from council responses
-  const councilContext = councilResponses
-    .map((c) => `${c.name} ${c.emoji}: "${c.response}"`)
-    .join('\n\n');
+async function generateActionPlan(originalQuestion, userGoal, apiKey, model) {
+  const prompt = `Create a practical action plan based on the user's goal.
 
-  const prompt = `Based on this fortune-telling session, create a practical action plan.
+ORIGINAL CONTEXT: "${originalQuestion}"
 
-ORIGINAL QUESTION: "${originalQuestion}"
-
-COUNCIL INSIGHTS:
-${councilContext}
-
-USER'S ACTUAL GOAL: "${userGoal}"
+USER'S GOAL: "${userGoal}"
 
 Create a clear, actionable to-do list with 5-7 concrete steps to help the user achieve their goal. Each step should be:
 - Specific and actionable
 - Practical and realistic
-- Building on the insights from the council
 - Numbered clearly
+- Include brief explanation
 
-Format as a clean numbered list with brief explanations for each step. Be encouraging but practical.`;
+Format as a clean numbered list. Be encouraging but practical.`;
 
   const response = await fetch(
     "https://openrouter.ai/api/v1/chat/completions",
@@ -376,17 +368,7 @@ export default {
         });
       } else if (url.pathname === "/api/fortune/action-plan") {
         // NEW: Generate action plan with to-do list
-        if (!body.originalQuestion || !body.councilResponses || !body.userGoal) {
-          return new Response(
-            JSON.stringify({ error: "Missing required fields: originalQuestion, councilResponses, and userGoal" }),
-            {
-              status: 400,
-              headers: { ...corsHeaders, "Content-Type": "application/json" },
-            }
-          );
-        }
-
-        if (!body.userGoal.trim()) {
+        if (!body.userGoal || !body.userGoal.trim()) {
           return new Response(
             JSON.stringify({ error: "Please tell us what you really want to achieve" }),
             {
@@ -396,9 +378,10 @@ export default {
           );
         }
 
+        const originalQuestion = body.originalQuestion || '';
+
         const actionPlan = await generateActionPlan(
-          body.originalQuestion,
-          body.councilResponses,
+          originalQuestion,
           body.userGoal,
           apiKey,
           model

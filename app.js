@@ -747,7 +747,6 @@ class FortuneTellerApp {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           originalQuestion: this.originalQuestion,
-          councilResponses: this.councilData,
           userGoal: userGoal
         }),
       });
