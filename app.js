@@ -766,7 +766,7 @@ class FortuneTellerApp {
   showActionPlanResult(actionPlan) {
     // Hide the prompt, show the result
     this.actionPlanResult.classList.remove('hidden');
-    this.actionPlanContent.textContent = actionPlan;
+    this.actionPlanContent.innerHTML = this.parseMarkdown(actionPlan);
     
     // Hide the input section
     document.querySelector('.action-plan-prompt').style.display = 'none';
@@ -779,6 +779,48 @@ class FortuneTellerApp {
     // Scroll to result
     this.actionPlanResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
+
+  parseMarkdown(text) {
+    // Simple markdown parser for common elements
+    let html = text;
+    
+    // Headers (### -> h3, ## -> h2, # -> h1)
+    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+    
+    // Bold (**text** or __text__)
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+    
+    // Italic (*text* or _text_)
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    html = html.replace(/_(.+?)_/g, '<em>$1</em>');
+    
+    // Numbered lists (1. Item)
+    html = html.replace(/^(\d+\.\s+.+)$/gm, (match) => {
+      return `<div class="todo-item">${match}</div>`;
+    });
+    
+    // Bullet points (- Item or * Item)
+    html = html.replace(/^[\-\*]\s+(.+)$/gm, '<li>$1</li>');
+    
+    // Wrap consecutive <li> items in <ul>
+    html = html.replace(/(<li>.*<\/li>\n?)+/g, (match) => `<ul>${match}</ul>`);
+    
+    // Code blocks (```code```)
+    html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+    
+    // Inline code (`code`)
+    html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+    
+    // Line breaks
+    html = html.replace(/\n\n/g, '<br><br>');
+    html = html.replace(/\n/g, '<br>');
+    
+    return html;
+  }
+
   animateFortuneText() {
     const text = this.fortuneText.textContent;
     this.fortuneText.textContent = '';
