@@ -8,6 +8,92 @@ Behold! A mystical web contraption powered by the ancient arts of Google DeepMin
 
 **https://vadimfrolov.github.io/gemini-hack-triple-agent/**
 
+## 🏗️ Architecture: How the Magic Flows 🏗️
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                          🌐 USER'S BROWSER                          │
+│                                                                     │
+│  ┌────────────────────────────────────────────────────────────┐   │
+│  │         Frontend (GitHub Pages)                            │   │
+│  │  • index.html - UI structure                               │   │
+│  │  • app.js - JavaScript logic                               │   │
+│  │  • styles.css - Mystical styling                           │   │
+│  └────────────────────────────────────────────────────────────┘   │
+│                              │                                      │
+│                              │ HTTPS Request                        │
+│                              │ POST /api/fortune/council            │
+│                              │ { question: "..." }                  │
+└──────────────────────────────┼──────────────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                    ☁️ CLOUDFLARE WORKER                             │
+│                 (fortune-teller-worker)                             │
+│                                                                     │
+│  ┌────────────────────────────────────────────────────────────┐   │
+│  │  Middleware Layer                                          │   │
+│  │  • CORS validation (checks allowed origin)                 │   │
+│  │  • Rate limiting (10 req/min via KV storage)               │   │
+│  │  • Request routing (/text, /voice, /council)               │   │
+│  └────────────────────────────────────────────────────────────┘   │
+│                              │                                      │
+│                              │ Sequential API Calls                 │
+│                              │ (one per agent in council)           │
+│                              ▼                                      │
+│  ┌────────────────────────────────────────────────────────────┐   │
+│  │  Agent Orchestration                                       │   │
+│  │  • Fortune Teller 🧙‍♀️ → prompt + context                   │   │
+│  │  • Realist 🎯 → prompt + previous responses               │   │
+│  │  • Wise Cat 🐱 → prompt + full context                    │   │
+│  └────────────────────────────────────────────────────────────┘   │
+│                              │                                      │
+│                              │ HTTPS Request (per agent)            │
+│                              │ Authorization: Bearer <API_KEY>      │
+└──────────────────────────────┼──────────────────────────────────────┘
+                               │
+                               ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                      🤖 OPENROUTER API                              │
+│                (openrouter.ai/api/v1/chat/completions)              │
+│                                                                     │
+│  ┌────────────────────────────────────────────────────────────┐   │
+│  │  AI Model Processing (e.g., Gemini)                        │   │
+│  │  • Receives system prompt + user message                   │   │
+│  │  • Generates AI response based on persona                  │   │
+│  │  • Returns completion text                                 │   │
+│  └────────────────────────────────────────────────────────────┘   │
+│                              │                                      │
+│                              │ JSON Response                        │
+│                              │ { choices: [{ message: {...} }] }    │
+└──────────────────────────────┼──────────────────────────────────────┘
+                               │
+                               ▼
+                    ☁️ Cloudflare Worker
+                    (collects all responses)
+                               │
+                               ▼
+                    🌐 Browser Frontend
+                    (displays with typewriter effect)
+```
+
+### 🔄 Data Flow Summary
+
+1. **User Input**: User types or speaks a question in the browser
+2. **Frontend Request**: `app.js` sends HTTPS POST to Cloudflare Worker
+3. **Worker Security**: Worker validates CORS origin and checks rate limits
+4. **Agent Loop**: Worker calls OpenRouter API 3 times (once per council member)
+5. **Context Building**: Each agent receives previous responses as context
+6. **AI Processing**: OpenRouter routes to Gemini model with custom prompts
+7. **Response Collection**: Worker collects all agent responses
+8. **Frontend Display**: Browser receives JSON and animates responses sequentially
+
+**Key Features:**
+- 🔐 **Security**: API key hidden in Worker secrets (never exposed to browser)
+- 🛡️ **Rate Limiting**: KV storage prevents abuse (10 requests/min per IP)
+- 🎭 **Context Awareness**: Each agent builds on previous council members
+- ⚡ **Performance**: Sequential reveals create dramatic narrative effect
+
 ## ⚡ Why This Mystical Contraption Matters ⚡
 
 **🔧 Technical Execution** - *The Craftsmanship of Our Spellwork*
